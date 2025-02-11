@@ -1,0 +1,12 @@
+test_that("pochhammer works", {
+  expect_equal(pochhammer(0, 0), 1)
+  expect_equal(pochhammer(0.5, 0), 1)
+  expect_equal(pochhammer(0.5, 1), gamma(1.5)/gamma(0.5))
+  expect_equal(pochhammer(0.5, 2), gamma(2.5)/gamma(0.5))
+  expect_equal(pochhammer(0.5, 3), gamma(3.5)/gamma(0.5))
+  expect_equal(pochhammer(7, 0), 1)
+  expect_equal(pochhammer(7, 1), gamma(8)/gamma(7))
+  expect_equal(pochhammer(7, 2), gamma(9)/gamma(7))
+  expect_equal(pochhammer(7, 3), gamma(10)/gamma(7))
+  expect_error(pochhammer(1, -1))
+})
