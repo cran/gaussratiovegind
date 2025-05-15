@@ -1,11 +1,11 @@
-kummerM <- function(a, b, z, eps = 1e-06) {
+kummer <- function(a, b, z, eps = 1e-06) {
   #' Confluent \eqn{D}-Hypergeometric Function
   #'
   #' Computes the Kummer's function, or confluent hypergeometric function.
   #'
-  #' @aliases lauricella
+  #' @aliases kummer
   #'
-  #' @usage kummerM(a, b, z, eps = 1e-06)
+  #' @usage kummer(a, b, z, eps = 1e-06)
   #' @param a numeric.
   #' @param b numeric
   #' @param z numeric vector.
@@ -35,19 +35,18 @@ kummerM <- function(a, b, z, eps = 1e-06) {
   n <- 0
   res <- 0
   
-  while ((max(Re(d)) > eps) & (!any(is.nan(d)))) {
+  while ((max(Re(d)) > eps) & (all(is.finite(d)))) {
     res <- res + d
     # cat(d, "\t", res, "\n")
     n <- n + 1
-    d <- ( pochhammer(a, n) / pochhammer(b, n) ) * ( z^n / factorial(n) )
-    # d <- exp(
-    #   lnpochhammer(a, n) - lnpochhammer(b, n) + sapply(z, function(x) { n*log(x) }
-    #   ) - lfactorial(n)
-    # )
+    # d <- ( pochhammer(a, n) / pochhammer(b, n) ) * ( z^n / factorial(n) )
+    d <- exp(
+      lnpochhammer(a, n) - lnpochhammer(b, n) + n*log(z) - lfactorial(n) #sapply(z, function(x) { n*log(x) })
+    )
   }
   # cat("\n")
   
   attr(res, "k") <- n
-  attr(res, "epsilon") <- d
-  return(res)
+  attr(res, "epsilon") <- Re(d)
+  return(Re(res))
 }

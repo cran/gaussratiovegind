@@ -1,13 +1,13 @@
 rnormratio <- function (n, bet, rho, delta) {
-  #' Ratio of two Gaussian distributions
+  #' Simulate from a Normal Ratio Distribution
   #'
-  #' Simulate data from a ratio of two Gaussian distributions<!-- with strictly positive means and variances -->.
+  #' Simulate data from a ratio of two independent Gaussian distributions<!-- with strictly positive means and variances -->.
   #'
   #' @aliases rnormratio
   #'
   #' @usage rnormratio(n, bet, rho, delta)
   #' @param n integer. Number of observations. If \code{length(n) > 1}, the length is taken to be the nmber required.
-  #' @param bet,rho,delta numeric values. The parameters \eqn{(\beta, \rho, \delta)} of the distribution, see Details.
+  #' @param bet,rho,delta numeric values. The parameters \eqn{(\beta, \rho, \delta_y)} of the distribution, see Details.
   #'
   #' @details Let two random variables
   #' \eqn{X \sim N(\mu_x, \sigma_x)} and \eqn{Y \sim N(\mu_y, \sigma_y)}
@@ -30,6 +30,8 @@ rnormratio <- function (n, bet, rho, delta) {
   #' 
   #' @seealso [dnormratio()]: probability density of a normal ratio.
   #' 
+  #' [pnormratio()]: probability distribution function.
+  #' 
   #' [estparnormratio()]: parameter estimation.
   #' 
   #' @author Pierre Santagostini, Angélina El Ghaziri, Nizar Bouhlel
@@ -38,6 +40,15 @@ rnormratio <- function (n, bet, rho, delta) {
   #' On the importance of non-Gaussianity in chlorophyll fluorescence imaging.
   #' Remote Sensing 15(2), 528 (2023).
   #' \doi{10.3390/rs15020528}
+  #'
+  #' Marsaglia, G. 2006. Ratios of Normal Variables.
+  #' Journal of Statistical Software 16.
+  #' \doi{10.18637/jss.v016.i04}
+  #'
+  #' Díaz-Francés, E., Rubio, F.J.,
+  #' On the existence of a normal approximation to the distribution of the ratio of two independent normal random variables.
+  #' Stat Papers 54, 309–323 (2013).
+  #' \doi{10.1007/s00362-012-0429-2}
   #'
   #' @examples
   #' # First example

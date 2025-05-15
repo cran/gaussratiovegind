@@ -16,7 +16,7 @@ lnpochhammer <- function(x, n) {
   #' 
   #' If \eqn{n = 0}, \eqn{\displaystyle{ log\left((x)_n\right) = log(1) = 0}}
   #' @seealso \code{\link{pochhammer}},
-  #' \code{\link{kummerM}}
+  #' \code{\link{kummer}}
   #' @author Pierre Santagostini, Nizar Bouhlel
   #'
   #' @examples

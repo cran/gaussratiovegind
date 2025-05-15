@@ -29,7 +29,7 @@ pochhammer(2, 3)
 }
 \seealso{
 \code{\link{lnpochhammer}},
-\code{\link{kummerM}}
+\code{\link{kummer}}
 }
 \author{
 Pierre Santagostini, Nizar Bouhlel

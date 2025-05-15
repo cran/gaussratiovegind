@@ -2,20 +2,20 @@
 % Please edit documentation in R/rnormratio.R
 \name{rnormratio}
 \alias{rnormratio}
-\title{Ratio of two Gaussian distributions}
+\title{Simulate from a Normal Ratio Distribution}
 \usage{
 rnormratio(n, bet, rho, delta)
 }
 \arguments{
 \item{n}{integer. Number of observations. If \code{length(n) > 1}, the length is taken to be the nmber required.}
 
-\item{bet, rho, delta}{numeric values. The parameters \eqn{(\beta, \rho, \delta)} of the distribution, see Details.}
+\item{bet, rho, delta}{numeric values. The parameters \eqn{(\beta, \rho, \delta_y)} of the distribution, see Details.}
 }
 \value{
 A numeric vector: the produced sample.
 }
 \description{
-Simulate data from a ratio of two Gaussian distributions\if{html}{\out{<!-- with strictly positive means and variances -->}}.
+Simulate data from a ratio of two independent Gaussian distributions\if{html}{\out{<!-- with strictly positive means and variances -->}}.
 }
 \details{
 Let two random variables
@@ -57,9 +57,20 @@ El Ghaziri, A., Bouhlel, N., Sapoukhina, N., Rousseau, D.,
 On the importance of non-Gaussianity in chlorophyll fluorescence imaging.
 Remote Sensing 15(2), 528 (2023).
 \doi{10.3390/rs15020528}
+
+Marsaglia, G. 2006. Ratios of Normal Variables.
+Journal of Statistical Software 16.
+\doi{10.18637/jss.v016.i04}
+
+Díaz-Francés, E., Rubio, F.J.,
+On the existence of a normal approximation to the distribution of the ratio of two independent normal random variables.
+Stat Papers 54, 309–323 (2013).
+\doi{10.1007/s00362-012-0429-2}
 }
 \seealso{
 \code{\link[=dnormratio]{dnormratio()}}: probability density of a normal ratio.
+
+\code{\link[=pnormratio]{pnormratio()}}: probability distribution function.
 
 \code{\link[=estparnormratio]{estparnormratio()}}: parameter estimation.
 }

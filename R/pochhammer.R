@@ -12,7 +12,7 @@ pochhammer <- function(x, n) {
   #' @details The Pochhammer symbol is given by:
   #' \deqn{ \displaystyle{ (x)_n = \frac{\Gamma(x+n)}{\Gamma(x)} = x (x+1) ... (x+n-1) } }
   #' @seealso \code{\link{lnpochhammer}},
-  #' \code{\link{kummerM}}
+  #' \code{\link{kummer}}
   #' @author Pierre Santagostini, Nizar Bouhlel
   #'
   #' @examples

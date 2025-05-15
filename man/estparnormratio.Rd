@@ -2,27 +2,80 @@
 % Please edit documentation in R/estparnormratio.R
 \name{estparnormratio}
 \alias{estparnormratio}
+\alias{estparnormratio,estparEM,estparVB}
+\alias{estparEM}
+\alias{estparVB}
 \title{Estimation of the Parameters of a Normal Ratio Distribution}
 \usage{
-estparnormratio(z, eps = 1e-6)
+estparnormratio(z, method = c("EM", "VB"), eps = 1e-06,
+                       display = FALSE, mux0 = 1, sigmax0 = 1,
+                       alphax0 = NULL, betax0 = NULL, muy0 = 1, sigmay0 = 1,
+                       alphay0 = NULL, betay0 = NULL)
+
+estparEM(z, eps = 1e-06,  display = FALSE, #plot = display,
+                       mux0 = 1, sigmax0 = 1, muy0 = 1, sigmay0 = 1)
+
+estparVB(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
+                       alphax0 = 1, betax0 = 1, muy0 = 1, sigmay0 = 1,
+                       alphay0 = 1, betay0 = 1)
+
+estparEM(
+  z,
+  eps = 1e-06,
+  display = FALSE,
+  mux0 = 1,
+  sigmax0 = 1,
+  muy0 = 1,
+  sigmay0 = 1
+)
+
+estparVB(
+  z,
+  eps = 1e-06,
+  display = FALSE,
+  mux0 = 1,
+  sigmax0 = 1,
+  alphax0 = 1,
+  betax0 = 1,
+  muy0 = 1,
+  sigmay0 = 1,
+  alphay0 = 1,
+  betay0 = 1
+)
 }
 \arguments{
-\item{z}{numeric matrix or data frame.}
+\item{z}{numeric.}
 
-\item{eps}{numeric. Precision for the estimation of the parameters.}
+\item{method}{the method used to estimate the parameters of the distribution.
+It can be \code{"EM"} (expectation-maximization) or \code{"VB"} (Variational Bayes).}
+
+\item{eps}{numeric. Precision for the estimation of the parameters (see Details).}
+
+\item{display}{logical. When \code{TRUE} the successive values of the stop criterion
+(distance between successive values) is printed.}
+
+\item{mux0, sigmax0, muy0, sigmay0}{initial values of the means and
+standard deviations of the \eqn{X} and \eqn{Y} variables. Default:
+\code{mux0 = 1, sigmax0 = 1, muy0 = 1, sigmay0 = 1}.}
+
+\item{alphax0, betax0, alphay0, betay0}{initial values for the variational
+Bayes method. Omitted if \code{method="EM"}.
+If \code{method="VB"}, if omitted, they are set to 1.}
 }
 \value{
 A list of 3 elements \code{beta}, \code{rho}, \code{delta}:
 the estimated parameters of the \eqn{Z} distribution
 \eqn{\hat{\beta}}, \eqn{\hat{\rho}}, \eqn{\hat{\delta}_y},
-with two attributes \code{attr(, "epsilon")} (precision of the result) and \code{attr(, "k")} (number of iterations).
+with three attributes \code{attr(, "epsilon")} (precision of the result),
+\code{attr(, "k")} (number of iterations) and \code{attr(, "method")} (estimation method).
 }
 \description{
-Estimation of the parameters of \if{html}{\out{<!-- the distribution of a ratio of two distributions -->}}
-a ratio \eqn{\displaystyle{Z = \frac{X}{Y}}},
-\eqn{X} and \eqn{Y} being two independant random variables distributed
+Estimation of the parameters of a ratio \eqn{\displaystyle{Z = \frac{X}{Y}}},
+\eqn{X} and \eqn{Y} being two independent random variables distributed
 according to Gaussian distributions,
-using the EM (estimation-maximization) algorithm.
+using the EM (estimation-maximization) algorithm or variational inference.
+Depending on the estimation method, the \code{estparnormatio} function calls
+\code{estparEM} (EM algorithm) or \code{estparVB} (variational Bayes).
 }
 \details{
 Let a random variable: \eqn{\displaystyle{Z = \frac{X}{Y}}},
@@ -35,7 +88,7 @@ The density probability of \eqn{Z} is:
 f_Z(z; \beta, \rho, \delta_y) = \frac{\rho}{\pi (1 + \rho^2 z^2)} \ \exp{\left(-\frac{\rho^2 \beta^2 + 1}{2\delta_y^2}\right)} \ {}_1 F_1\left( 1, \frac{1}{2}; \frac{1}{2 \delta_y^2} \frac{(1 + \beta \rho^2 z)^2}{1 + \rho^2 z^2} \right)
 }}
 
-with: \eqn{\displaystyle{\beta = \frac{\mu_x}{\mu}_y}},
+with: \eqn{\displaystyle{\beta = \frac{\mu_x}{\mu_y}}},
 \eqn{\displaystyle{\rho = \frac{\sigma_y}{\sigma_x}}},
 \eqn{\displaystyle{\delta_y = \frac{\sigma_y}{\mu_y}}}.
 
@@ -45,13 +98,23 @@ and \eqn{_1 F_1\left(a, b; x\right)} is the confluent hypergeometric function
 _1 F_1\left(a, b; x\right) = \sum_{n = 0}^{+\infty}{ \frac{ (a)_n }{ (b)_n } \frac{x^n}{n!} }
 }}
 
-The parameters \eqn{\beta}, \eqn{\rho}, \eqn{\delta_y} of the \eqn{Z} distribution
+If \code{method = "EM"}, the means and standard deviations
+\eqn{\mu_x}, \eqn{\sigma_x}, \eqn{\mu_y} and \eqn{\sigma_y}
 are estimated with the EM algorithm, as presented in El Ghaziri et al.
-The computation uses the \code{\link{kummerM}} function.
+If \code{method = "VB"}, they are estimated with the variational Bayes method
+as presented in Bouhlel et al.
 
-This uses an iterative algorithm.
+Then the parameters \eqn{\beta}, \eqn{\rho}, \eqn{\delta_y} of the \eqn{Z} distribution
+are computed from these means and standard deviations.
 
-The precision for the estimation of the parameters is given by the \code{eps} parameter.
+The estimation of \eqn{\mu_x}, \eqn{\sigma_x}, \eqn{\mu_y} and \eqn{\sigma_y}
+uses an iterative algorithm.
+The precision for their estimation is given by the \code{eps} parameter.
+
+The computation uses the \code{\link{kummer}} function.
+
+If there are ties in the \code{z} vector, it generates a warning,
+as there should be no ties in data distributed among a continuous distribution.
 }
 \examples{
 \donttest{
@@ -63,7 +126,11 @@ delta1 <- 0.22
 set.seed(1234)
 z1 <- rnormratio(800, bet = beta1, rho = rho1, delta = delta1)
 
-estparnormratio(z1)
+# With the EM method:
+estparnormratio(z1, method = "EM")
+
+# With the variational method:
+estparnormratio(z1, method = "VB")
 
 # Second example
 beta2 <- 0.24
@@ -73,7 +140,11 @@ delta2 <- 0.25
 set.seed(1234)
 z2 <- rnormratio(800, bet = beta2, rho = rho2, delta = delta2)
 
-estparnormratio(z2)
+# With the EM method:
+estparnormratio(z2, method = "EM")
+
+# With the variational method:
+estparnormratio(z2, method = "VB")
 }
 
 }
@@ -82,6 +153,11 @@ El Ghaziri, A., Bouhlel, N., Sapoukhina, N., Rousseau, D.,
 On the importance of non-Gaussianity in chlorophyll fluorescence imaging.
 Remote Sensing 15(2), 528 (2023).
 \doi{10.3390/rs15020528}
+
+Bouhlel, N., Mercier, F., El Ghaziri, A., Rousseau, D.,
+Parameter Estimation of the Normal Ratio Distribution with Variational Inference.
+2023 31st European Signal Processing Conference (EUSIPCO), Helsinki, Finland, 2023, pp. 1823-1827.
+\doi{10.23919/EUSIPCO58844.2023.10290111}
 }
 \seealso{
 \code{\link[=dnormratio]{dnormratio()}}: probability density of a normal ratio.

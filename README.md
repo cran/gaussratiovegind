@@ -8,6 +8,7 @@ nature could lead to incorrect statistical modeling and interpretation.
 This package provides tools to accurately handle and analyse such ratios:
 
 * Probability density function
+* Cumulative distribution function
 * Sample simulation
 * Parameter estimation
 
@@ -43,3 +44,8 @@ El Ghaziri, A., Bouhlel, N., Sapoukhina, N., Rousseau, D.,
 On the importance of non-Gaussianity in chlorophyll fluorescence imaging.
 Remote Sensing 15(2), 528 (2023).
 https://doi.org/10.3390/rs15020528
+
+Bouhlel, N., Mercier, F., El Ghaziri, A., Rousseau, D., 
+Parameter Estimation of the Normal Ratio Distribution with Variational Inference.
+2023 31st European Signal Processing Conference (EUSIPCO), Helsinki, Finland, 2023, pp. 1823-1827.
+https://doi.org/10.23919/EUSIPCO58844.2023.10290111
