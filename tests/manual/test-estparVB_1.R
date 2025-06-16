@@ -4,7 +4,7 @@ x0 <- rnorm(2048, mu1, sigma1)
 y0 <- rnorm(2048, mu2, sigma2)
 z0 <- x0/y0
 beta0 <- mu1/mu2; rho0 <- sigma2/sigma1; delta0 <- sigma2/mu2
-theta0 <- estparnormratio(z3, method = "VB", eps = 1e-3)
+theta0 <- estparnormratio(z0, method = "VB", eps = 1e-3)
 test_that("estparnormratio works 0", {
   expect_equal(round(theta0$beta, 1), beta0)
   expect_equal(round(theta0$rho, 1), rho0)

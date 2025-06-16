@@ -39,8 +39,8 @@ Parameter Estimation of the Normal Ratio Distribution with Variational Inference
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://forgemia.inra.fr/imhorphen/gaussratiovegind}
-  \item Report bugs at \url{https://forgemia.inra.fr/imhorphen/gaussratiovegind/-/issues}
+  \item \url{https://forge.inrae.fr/imhorphen/gaussratiovegind}
+  \item Report bugs at \url{https://forge.inrae.fr/imhorphen/gaussratiovegind/-/issues}
 }
 
 }

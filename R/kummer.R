@@ -45,6 +45,9 @@ kummer <- function(a, b, z, eps = 1e-06) {
     )
   }
   # cat("\n")
+  if (n == 0) {
+    res <- rep(1, length(z))
+  }
   
   attr(res, "k") <- n
   attr(res, "epsilon") <- Re(d)

@@ -4,6 +4,20 @@ x1 <- rnorm(2048, 1, 5)
 y1 <- rnorm(2048, 10, 10)
 z1 <- x1/y1
 beta1 <- mu1/mu2; rho1 <- sigma2/sigma1; delta1 <- sigma2/mu2
+
+theta0 <- estparnormratio(z1, method = "VB", eps = 1e1)
+test_that("estparnormratio works 0", {
+  expect_equal(round(theta0$beta, 1), beta1)
+  expect_equal(round(theta0$rho), rho1)
+  expect_equal(round(theta0$delta), delta1)
+})
+
+set.seed(1234)
+mu1 <- 1; sigma1 <- 5; mu2 <- 10; sigma2 <- 10
+x1 <- rnorm(2048, 1, 5)
+y1 <- rnorm(2048, 10, 10)
+z1 <- x1/y1
+beta1 <- mu1/mu2; rho1 <- sigma2/sigma1; delta1 <- sigma2/mu2
 theta1 <- estparnormratio(z1, method = "VB", eps = 1e-3)
 test_that("estparnormratio works 1", {
   expect_equal(round(theta1$beta, 1), beta1)

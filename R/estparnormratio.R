@@ -183,8 +183,16 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
   iter <- 0
   diff <- 100
   
+  if (eps < 1)
+  {
+    epskumm <- eps
+  } else {
+    epskumm <- 1e-6
+  }
+  
   while ((!is.nan(diff)) & (diff > eps)) {
     
+    # print(diff); print(variancex); print(variancey); cat("\n")
     # print(iter)
     
     # Current values: mux, variancex; muy, variancey
@@ -201,9 +209,9 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
     #   A <- 0.5
     #   B <- gmu
     # } else {
-    num1 <- kummer(2, 1.5, gmu, eps = eps)
-    num2 <- kummer(2, 0.5, gmu, eps = eps)
-    denom <- kummer(1, 0.5, gmu, eps = eps)
+    num1 <- kummer(2, 1.5, gmu, eps = epskumm)
+    num2 <- kummer(2, 0.5, gmu, eps = epskumm)
+    denom <- kummer(1, 0.5, gmu, eps = epskumm)
     A <- num1/denom
     B <- num2/denom
     # }
@@ -245,6 +253,8 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
     # cat("\n")
   }
   if (display) cat("\n")
+  
+  # print(variancex); print(variancey)
   
   sigmax <- sqrt(variancex); sigmay <- sqrt(variancey)
   
@@ -291,6 +301,13 @@ estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
   delta2 <- 100
   # Delta <- numeric(0)
   
+  if (eps < 1)
+  {
+    epskumm <- eps^2
+  } else {
+    epskumm <- 1e-6
+  }
+  
   # while (delta2 >= eps^2 & iter <= 1e4) {
   # while (iter <= 1e4) {
   while (delta2 >= eps^2) {
@@ -324,9 +341,9 @@ estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
       rapport2 <- BA
     } else {
       # cat(range(BA), "<= 50\n")
-      num1 <- kummer(2, 1.5, BA, eps = eps^2)
-      num2 <- kummer(2, 0.5, BA, eps = eps^2)
-      denom <- kummer(1, 0.5, BA, eps = eps^2)
+      num1 <- kummer(2, 1.5, BA, eps = epskumm)
+      num2 <- kummer(2, 0.5, BA, eps = epskumm)
+      denom <- kummer(1, 0.5, BA, eps = epskumm)
       
       rapport1 <- num1/denom
       rapport2 <- num2/denom
@@ -369,7 +386,7 @@ estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
                      muy - muy1, variancey - variancey1,
                      betax - betax1, betay - betay1)^2 )
     
-    if (display) cat(delta2, "  ")
+    if (display) cat(sqrt(delta2), "  ")
     
     # cat(delta2 > 0.71); if (all(BA <= 50)) {print(c(range(num1), range(num2), range(denom)))} else {print(c(range(BA)))}
     

@@ -28,7 +28,7 @@ Or install the development version from the repository, using the [`devtools`](h
 ```
 install.packages("devtools")
 devtools::install_gitlab("imhorphen/gaussratiovegind",
-                         host = "https://forgemia.inra.fr")
+                         host = "https://forge.inrae.fr")
 ```
 
 ## Authors
