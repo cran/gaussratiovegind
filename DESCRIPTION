@@ -1,9 +1,9 @@
 Package: gaussratiovegind
 Title: Distribution of Gaussian Ratios
-Version: 2.0.3
+Version: 3.0.0
 Authors@R: c(person("Pierre", family = "Santagostini", role = c("aut", "cre"), email = "pierre.santagostini@institut-agro.fr"),
-    person(given = "Angélina", family = "El Ghaziri", role = "aut"),
     person(given = "Nizar", family = "Bouhlel", role = "aut"),
+    person(given = "Angélina", family = "El Ghaziri", role = "aut"),
     person(given = "David", family = "Rousseau", role = "ctb")
     )
 Maintainer: Pierre Santagostini <pierre.santagostini@institut-agro.fr>
@@ -22,16 +22,17 @@ License: GPL (>= 3)
 URL: https://forge.inrae.fr/imhorphen/gaussratiovegind
 BugReports: https://forge.inrae.fr/imhorphen/gaussratiovegind/-/issues
 Encoding: UTF-8
-RoxygenNote: 7.3.2
-Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: R (>= 3.5)
+Imports: MASS
 LazyData: true
+Suggests: testthat (>= 3.0.0)
+RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2025-06-16 12:36:56 UTC; psantagosti
+Packaged: 2026-02-19 15:09:51 UTC; psantagosti
 Author: Pierre Santagostini [aut, cre],
-  Angélina El Ghaziri [aut],
   Nizar Bouhlel [aut],
+  Angélina El Ghaziri [aut],
   David Rousseau [ctb]
 Repository: CRAN
-Date/Publication: 2025-06-16 17:00:03 UTC
+Date/Publication: 2026-02-19 16:50:02 UTC

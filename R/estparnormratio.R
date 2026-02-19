@@ -1,7 +1,7 @@
 #' Estimation of the Parameters of a Normal Ratio Distribution
 #'
 #' Estimation of the parameters of a ratio \eqn{\displaystyle{Z = \frac{X}{Y}}},
-#' \eqn{X} and \eqn{Y} being two independent random variables distributed
+#' \eqn{X} and \eqn{Y} being two <!--independent--> random variables distributed
 #' according to Gaussian distributions,
 #' using the EM (estimation-maximization) algorithm or variational inference.
 #' Depending on the estimation method, the \code{estparnormatio} function calls
@@ -10,46 +10,62 @@
 #' @name estparnormratio
 #' @aliases estparnormratio,estparEM,estparVB
 #'
-#' @usage estparnormratio(z, method = c("EM", "VB"), eps = 1e-06,
-#'                        display = FALSE, mux0 = 1, sigmax0 = 1,
+#' @usage estparnormratio(z, method = c("EM", "VB"), indep = TRUE, eps = 1e-06,
+#'                        na.rm = FALSE, display = FALSE, graph = FALSE,
+#'                        xlim = NULL, ylim = NULL, mux0 = 1, sigmax0 = 1,
 #'                        alphax0 = NULL, betax0 = NULL, muy0 = 1, sigmay0 = 1,
-#'                        alphay0 = NULL, betay0 = NULL)
-#' @usage estparEM(z, eps = 1e-06,  display = FALSE, #plot = display,
-#'                        mux0 = 1, sigmax0 = 1, muy0 = 1, sigmay0 = 1)
-#' @usage estparVB(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
-#'                        alphax0 = 1, betax0 = 1, muy0 = 1, sigmay0 = 1,
-#'                        alphay0 = 1, betay0 = 1)
+#'                        alphay0 = NULL, betay0 = NULL,
+#'                        cov0 = 0)
+#'                        
 #' @param z numeric.
 #' @param method the method used to estimate the parameters of the distribution.
 #' It can be \code{"EM"} (expectation-maximization) or \code{"VB"} (Variational Bayes).
+#' @param indep logical. If \code{indep=TRUE} (default) \eqn{X} and \eqn{Y}
+#' are two independent Gaussian variables and the parameters \eqn{\beta},
+#' \eqn{\rho} and \eqn{delta_y} parameters of \eqn{Z=\frac{X}{Y}} are estimated.
+#' If \code{indep=FALSE}, \eqn{X} and \eqn{Y} can be correlated, and
+#' the correlation coefficient \eqn{r} is also estimated.
 #' @param eps numeric. Precision for the estimation of the parameters (see Details).
-#' @param display logical. When \code{TRUE} the successive values of the stop criterion
-#' (distance between successive values) is printed.
+#' @param na.rm a logical evaluating to \code{TRUE} or \code{FALSE} indicating
+#' whether \code{NA} values should be stripped before the computation proceeds.
+#' @param display logical. When \code{TRUE} the successive values of the parameters
+#' are printed.
+#' @param graph logical. When \code{TRUE} the successive values of the parameters
+#' are plotted.
+#' @param xlim,ylim if \code{graph} is \code{TRUE}, the \code{x} and \code{y} limits
+#' of the plot. Default: \code{xlim = c(0, 1000)} and \code{ylim} depend on the initial
+#' values of the parameters: \code{ylim = 10*c(0, max(theta))}.
 #' @param mux0,sigmax0,muy0,sigmay0 initial values of the means and
 #' standard deviations of the \eqn{X} and \eqn{Y} variables. Default:
 #' \code{mux0 = 1, sigmax0 = 1, muy0 = 1, sigmay0 = 1}.
 #' @param alphax0,betax0,alphay0,betay0 initial values for the variational
 #' Bayes method. Omitted if \code{method="EM"}.
 #' If \code{method="VB"}, if omitted, they are set to 1.
-#' @return A list of 3 elements \code{beta}, \code{rho}, \code{delta}:
+#' @param cov0 initial value of the covariance of \eqn{X} and \eqn{Y}.
+#' If \code{indep} is \code{FALSE}, \code{cov0} must be different from 0.
+#' @return A list of 4 elements \code{beta}, \code{rho}, \code{delta}, \code{r}:
 #' the estimated parameters of the \eqn{Z} distribution
-#' \eqn{\hat{\beta}}, \eqn{\hat{\rho}}, \eqn{\hat{\delta}_y},
+#' \eqn{\hat{\beta}}, \eqn{\hat{\rho}}, \eqn{\hat{\delta}_y} and \eqn{\hat{r}},
 #' with three attributes \code{attr(, "epsilon")} (precision of the result),
-#' \code{attr(, "k")} (number of iterations) and \code{attr(, "method")} (estimation method).
+#' \code{attr(, "k")} (number of iterations) and \code{attr(, "method")}
+#' (estimation method).
+#' 
+#' If \code{indep=FALSE}, \eqn{r} is not estimated, it is set to 0.
 #'
 #' @details Let a random variable: \eqn{\displaystyle{Z = \frac{X}{Y}}},
 #' 
 #' \eqn{X} and \eqn{Y} being normally distributed:
 #' \eqn{X \sim N(\mu_x, \sigma_x)} and \eqn{Y \sim N(\mu_y, \sigma_y)}.
 #' 
-#' The density probability of \eqn{Z} is:
+#' The probability density of \eqn{Z} is:
 #' \deqn{\displaystyle{
-#' f_Z(z; \beta, \rho, \delta_y) = \frac{\rho}{\pi (1 + \rho^2 z^2)} \ \exp{\left(-\frac{\rho^2 \beta^2 + 1}{2\delta_y^2}\right)} \ {}_1 F_1\left( 1, \frac{1}{2}; \frac{1}{2 \delta_y^2} \frac{(1 + \beta \rho^2 z)^2}{1 + \rho^2 z^2} \right)
+#' f_Z(z; \beta, \rho, \delta_y, r) = \frac{\rho \sqrt{1 - r^2}}{\pi (\rho^2 z^2 - 2r \rho z +1)} \ \exp{\left(-\frac{\rho^2 \beta^2 - 2r \beta \rho + 1}{2(1 - r^2) \delta_y^2}\right)} \ {}_1 F_1\left( 1, \frac{1}{2}; \frac{1}{2(1 - r^2) \delta_y^2} \frac{(\beta \rho^2 z - r\rho(z + \beta) + 1)^2}{\rho^2 z^2 - 2r \rho z + 1} \right)
 #' }}
 #' 
 #' with: \eqn{\displaystyle{\beta = \frac{\mu_x}{\mu_y}}},
 #' \eqn{\displaystyle{\rho = \frac{\sigma_y}{\sigma_x}}},
-#' \eqn{\displaystyle{\delta_y = \frac{\sigma_y}{\mu_y}}}.
+#' \eqn{\displaystyle{\delta_y = \frac{\sigma_y}{\mu_y}}},
+#' \eqn{r = Cor(X, Y) = \frac{Cov(X, Y)}{\sigma_X \sigma_Y}}.
 #' 
 #' and \eqn{_1 F_1\left(a, b; x\right)} is the confluent hypergeometric function
 #' (Kummer's function):
@@ -57,11 +73,23 @@
 #' _1 F_1\left(a, b; x\right) = \sum_{n = 0}^{+\infty}{ \frac{ (a)_n }{ (b)_n } \frac{x^n}{n!} }
 #' }}
 #' 
+#' If \eqn{X} and \eqn{Y} are independent (\eqn{r = 0}),
+#' the probability density is:
+#' \deqn{\displaystyle{
+#' f_Z(z; \beta, \rho, \delta_y, r = 0) = f_Z(z; \beta, \rho, \delta_y) = \frac{\rho}{\pi (1 + \rho^2 z^2)} \ \exp{\left(-\frac{\rho^2 \beta^2 + 1}{2\delta_y^2}\right)} \ {}_1 F_1\left( 1, \frac{1}{2}; \frac{1}{2 \delta_y^2} \frac{(1 + \beta \rho^2 z)^2}{1 + \rho^2 z^2} \right)
+#' }}
+#' 
 #' If \code{method = "EM"}, the means and standard deviations
 #' \eqn{\mu_x}, \eqn{\sigma_x}, \eqn{\mu_y} and \eqn{\sigma_y}
-#' are estimated with the EM algorithm, as presented in El Ghaziri et al.
+#' and the correlation coefficient \eqn{r}
+#' are estimated with the EM algorithm.
+#' 
+#' When \eqn{r = 0}, \eqn{\mu_x}, \eqn{\sigma_x}, \eqn{\mu_y} and \eqn{\sigma_y}
+#' are estimated using the algorithm presented in El Ghaziri et al.
+#' 
 #' If \code{method = "VB"}, they are estimated with the variational Bayes method
-#' as presented in Bouhlel et al.
+#' as presented in Bouhlel et al. For now, this method is available only
+#' for the case when \eqn{X} and \eqn{Y} are independent, i.e. \eqn{r = 0}.
 #' 
 #' Then the parameters \eqn{\beta}, \eqn{\rho}, \eqn{\delta_y} of the \eqn{Z} distribution
 #' are computed from these means and standard deviations.
@@ -93,7 +121,7 @@
 #' 
 #' @examples
 #' \donttest{
-#' # First example
+#' # First example: ratio of independent variables
 #' beta1 <- 0.15
 #' rho1 <- 5.75
 #' delta1 <- 0.22
@@ -102,32 +130,35 @@
 #' z1 <- rnormratio(800, bet = beta1, rho = rho1, delta = delta1)
 #' 
 #' # With the EM method:
-#' estparnormratio(z1, method = "EM")
+#' estparnormratio(z1, method = "EM", indep = TRUE)
 #' 
 #' # With the variational method:
 #' estparnormratio(z1, method = "VB")
 #' 
-#' # Second example
+#' # Second example: ratio of correlated variables
 #' beta2 <- 0.24
 #' rho2 <- 4.21
 #' delta2 <- 0.25
+#' r2 <- 0.8
 #' 
 #' set.seed(1234)
-#' z2 <- rnormratio(800, bet = beta2, rho = rho2, delta = delta2)
+#' z2 <- rnormratio(800, bet = beta2, rho = rho2, r = r2, delta = delta2)
 #' 
 #' # With the EM method:
-#' estparnormratio(z2, method = "EM")
-#' 
-#' # With the variational method:
-#' estparnormratio(z2, method = "VB")
+#' estparnormratio(z2, method = "EM", indep = FALSE)
 #' }
 #' 
-#' @export
+#' @importFrom graphics points
+#' @importFrom graphics legend
 
-estparnormratio <- function(z, method = c("EM", "VB"), eps = 1e-06,
-                            display = FALSE, mux0 = 1, sigmax0 = 1,
-                            alphax0 = NULL, betax0 = NULL, muy0 = 1,
-                            sigmay0 = 1, alphay0 = NULL, betay0 = NULL) {
+estparnormratio <- function(z, method = c("EM", "VB"), indep = TRUE,
+                            eps = 1e-06, na.rm = FALSE, display = FALSE,
+                            graph = FALSE, xlim = NULL, ylim = NULL,
+                            mux0 = 1, sigmax0 = 1, alphax0 = NULL,
+                            betax0 = NULL, muy0 = 1, sigmay0 = 1,
+                            alphay0 = NULL, betay0 = NULL, cov0 = 0) {
+  
+  #' @export
   
   method <- match.arg(method)
   
@@ -135,18 +166,29 @@ estparnormratio <- function(z, method = c("EM", "VB"), eps = 1e-06,
   if(length(unique(z)) < length(z))
     warning("Presence of ties in the data")
   
+  if (isTRUE(na.rm))
+    z <- z[!is.na(z)]
+  
+  if (!indep & method == "VB") {
+    warning(c("The variational Bayes method is not available for ",
+              "the estimation of the correlation coefficient r.\n",
+              "method is set to 'EM'"))
+    method <- "EM"
+  }  
   res <- switch(method,
          EM = {
-           estparEM(z, eps = eps,  display = display, #plot = plot,
+           estparEM(z, indep = indep, eps = eps, na.rm = FALSE,
+                    display = display, graph = graph, xlim = xlim, ylim = ylim,
                     mux0 = mux0, sigmax0 = sigmax0, muy0 = muy0,
-                    sigmay0 = sigmay0)
+                    sigmay0 = sigmay0, cov0 = cov0)
          },
          VB = {
            if (is.null(alphax0)) alphax0 <- 1
            if (is.null(betax0)) betax0 <- 1
            if (is.null(alphay0)) alphay0 <- 1
            if (is.null(betay0)) betay0 <- 1
-           estparVB(z, eps = eps, display = display, #plot = plot,
+           estparVB(z, eps = eps, na.rm = FALSE,
+                    display = display, graph = graph, xlim = xlim, ylim = ylim,
                     mux0 = mux0, sigmax0 = sigmax0,
                     alphax0 = alphax0, betax0 = betax0,
                     muy0 = muy0, sigmay0 = sigmay0,
@@ -158,9 +200,13 @@ estparnormratio <- function(z, method = c("EM", "VB"), eps = 1e-06,
   return(res)
 }
 
-estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
-                     mux0 = 1, sigmax0 = 1, muy0 = 1, sigmay0 = 1) {
-  #' @rdname estparnormratio
+estparEM <- function(z, indep = TRUE, eps = 1e-06, na.rm = FALSE,
+                     display = FALSE, graph = FALSE, xlim = NULL, ylim = NULL,
+                     mux0 = 1, sigmax0 = 1, muy0 = 1,sigmay0 = 1, cov0 = 0) {
+  #' @usage estparEM(z, indep = TRUE, eps = 1e-06, na.rm = FALSE,
+  #'                display = FALSE, graph = FALSE, xlim = NULL, ylim = NULL,
+  #'                mux0 = 1, sigmax0 = 1, muy0 = 1, sigmay0 = 1, cov0 = 0)
+  #' @rdname estparnormratio  
   #' @export
   
   # kummA <- function(x) {
@@ -171,6 +217,9 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
   #   Re(kummer(2, 0.5, x))/Re(kummer(1, 0.5, x, eps = eps))
   # }
   
+  if (isTRUE(na.rm))
+    z <- z[!is.na(z)]
+  
   variancex0 <- sigmax0^2; variancey0 <- sigmay0^2
   
   # Number of observations
@@ -179,6 +228,7 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
   #initialisation
   mux <- mux0; muy <- muy0
   variancex <- variancex0; variancey <- variancey0
+  if (!indep) covar <- cov0
   
   iter <- 0
   diff <- 100
@@ -190,7 +240,49 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
     epskumm <- 1e-6
   }
   
+  # plot(c(0,10000), c(0,log(eps, base = 10)), xlab = "Itération", ylab = "D",
+  #      type = "n", yaxt = "n")
+  # abline(h = log(eps, base = 10), col = "red")
+  # axis(side = 2, at = (0:-7), labels = 10^(0:-7))
+  
+  if (display | graph) {
+    theta <- c(beta = mux/muy,
+               rho = sqrt(variancey)/sqrt(variancex),
+               delta = sqrt(variancey)/muy,
+               phi = covar/variancey)
+  }
+  if (graph) {
+    if (is.null(xlim)) xlim <- c(0, 1000)
+    if (is.null(ylim)) ylim <- 10*c(0, max(theta))
+    plot(0, 0, xlim = xlim, ylim = ylim, xlab = "Iteration", ylab = "",
+         type = "n")
+    legend("topleft", legend = c("beta", "rho", "delta_y", "phi"),
+           fill = 2:5)
+  }
+  if (display) {
+    theta <- c(beta = mux/muy,
+               rho = sqrt(variancey)/sqrt(variancex),
+               delta = sqrt(variancey)/muy,
+               phi = covar/variancey)
+    # print(c(iteration = iter, mux = mux, variancex = variancex,
+    # muy = muy, variancey = variancey, theta))
+    print(c(iteration = as.character(iter), theta), quote = FALSE)
+  }
+  
   while ((!is.nan(diff)) & (diff > eps)) {
+    
+    if (display | graph) {
+      theta <- c(beta = mux/muy,
+                 rho = sqrt(variancey)/sqrt(variancex),
+                 delta = sqrt(variancey)/muy,
+                 phi = covar/variancey)
+    }
+    if (graph) {
+      points(rep(iter, 4), theta, col = 2:5, pch = 16, cex = 0.5)
+    }
+    if (display) {
+      print(unname(c(iteration = as.character(iter), theta)), quote = FALSE)
+    }
     
     # print(diff); print(variancex); print(variancey); cat("\n")
     # print(iter)
@@ -198,9 +290,22 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
     # Current values: mux, variancex; muy, variancey
     # Updates: mux1, variancex1; muy1, variancey1
     
-    mu <- 0.5*( (z^2/variancex) + 1/variancey )
+    if (indep) {
+      mu <- 0.5*( (z^2/variancex) + 1/variancey )
+    } else {
+      mu <- 0.5 * (variancex - 2*covar*z + variancey*z^2) /
+        (variancex*variancey - covar^2)
+    }
+    
     invmu <- 1/mu
-    gam <- muy/variancey + (mux/variancex)*z
+    
+    if (indep) {
+      gam <- muy/variancey + (mux/variancex)*z
+    } else {
+      gam <- (muy*variancex - (mux + muy*z)*covar + mux*variancey*z) /
+        (variancex*variancey - covar^2)
+    }
+    
     gmu <- gam^2*invmu/4
     
     # cat("\n"); print(range(gmu))
@@ -225,23 +330,33 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
     variancex1 <- (1/n)*sum((z^2)*invmu*B) - mux1^2
     # variancex1 <- 1
     
-    muy1 <- (1/n)*sum((gam/mu)*A)
+    muy1 <- (1/n)*sum((gam*invmu)*A)
     # muy1 <- 1
     variancey1 <- (1/n)*sum(invmu*B )-muy1^2
     # variancey1 <- 1
     
-    diff <- max(abs(c(mux1 - mux,
-                      variancex1 - variancex,
-                      muy1 - muy,
-                      variancey1 - variancey)
-    ))
+    if (!indep) covar1 <- (1/n)*sum(z*invmu*B) - mux1*muy1
+    
+    vecdiff <- c(mux1 - mux,
+                 variancex1 - variancex,
+                 muy1 - muy,
+                 variancey1 - variancey)
+    if (!indep) vecdiff <- c(vecdiff, covar1 - covar)
+    
+    diff <- max(abs(vecdiff))
     
     if (display) cat(diff, "  ")
     
     mux <- mux1; variancex <- variancex1
     muy <- muy1; variancey <- variancey1
+    if (!indep) covar <- covar1
     
     iter <- iter + 1
+    
+    # print(mux/muy)
+    # print(sqrt(variancey/variancex))
+    # print(muy/sqrt(variancey))
+    # print(covar*sqrt(variancex*variancey))
     
     # print(c(
     #   gmu.min = min(gmu), gmu.max = max(gmu),
@@ -251,6 +366,8 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
     #   diff = diff
     # ))
     # cat("\n")
+    
+    # points(iter, log(diff, base = 10), pch = 16)
   }
   if (display) cat("\n")
   
@@ -266,17 +383,36 @@ estparEM <- function(z, eps = 1e-06,  display = FALSE, #plot = display,
   res$rho <- sigmay/sigmax
   res$delta <- sigmay/muy
   
+  # print(res)
+  
+  if (indep) {
+    res$r <- 0
+  } else {
+    phi <- covar/variancey
+    # cat("phi ="); print(phi)
+    # cat("rho ="); print(res$rho)
+    res$r <- phi*res$rho
+  }
+  
   attr(res, "k") <- iter
   attr(res, "epsilon") <- eps
   
   return(res)
 }
 
-estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
-                     alphax0 = 1, betax0 = 1, muy0 = 1, sigmay0 = 1,
-                     alphay0 = 1, betay0 = 1) {
-  #' @rdname estparnormratio
+estparVB <- function(z, eps = 1e-06, na.rm = FALSE, display = FALSE,
+                     graph = FALSE, xlim = NULL, ylim = NULL,
+                     mux0 = 1, sigmax0 = 1, alphax0 = 1, betax0 = 1,
+                     muy0 = 1, sigmay0 = 1, alphay0 = 1, betay0 = 1) {
+  #' @usage estparVB(z, eps = 1e-06, na.rm = FALSE, display = FALSE,
+  #'                        graph = FALSE, xlim = NULL, ylim = NULL,
+  #'                        mux0 = 1, sigmax0 = 1, alphax0 = 1, betax0 = 1,
+  #'                        muy0 = 1, sigmay0 = 1, alphay0 = 1, betay0 = 1)
+  #' @rdname estparnormratio  
   #' @export
+  
+  if (isTRUE(na.rm))
+    z <- z[!is.na(z)]
   
   # print(c(mux0 = mux0, variancex0 = variancex0, alphax0 = alphax0,
   #         betax0 = betax0, muy0 = muy0, variancey0 = variancey0,
@@ -308,10 +444,42 @@ estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
     epskumm <- 1e-6
   }
   
-  # while (delta2 >= eps^2 & iter <= 1e4) {
-  # while (iter <= 1e4) {
+  if (display | graph) {
+    theta <- c(beta = mux/muy,
+               rho = sqrt(variancey)/sqrt(variancex),
+               delta = sqrt(variancey)/muy)
+  }
+  if (graph) {
+    if (is.null(xlim)) xlim <- c(0, 1000)
+    if (is.null(ylim)) ylim <- 10*c(0, max(theta))
+    plot(0, 0, xlim = xlim, ylim = ylim, xlab = "Iteration", ylab = "",
+         type = "n")
+    legend("topleft", legend = c("beta", "rho", "delta_y"),
+           fill = 2:4)
+  }
+  if (display) {
+    theta <- c(beta = mux/muy,
+               rho = sqrt(variancey)/sqrt(variancex),
+               delta = 1/muy * sqrt(betay / (alphay-1)))
+    # print(c(iteration = iter, mux = mux, variancex = variancex,
+    # muy = muy, variancey = variancey, theta))
+    print(c(iteration = as.character(iter), theta), quote = FALSE)
+  }
+  
   while (delta2 >= eps^2) {
-      
+    
+    if (display | graph) {
+      theta <- c(beta = mux/muy,
+                 rho = sqrt((betay * (alphax-1)) / (betax * (alphay-1))),
+                 delta = sqrt(variancey)/muy)
+    }
+    if (graph) {
+      points(rep(iter, 3), theta, col = 2:4, pch = 16, cex = 0.5)
+    }
+    if (display) {
+      print(unname(c(iteration = as.character(iter), theta)), quote = FALSE)
+    }
+    
     iter <- iter + 1
     
     # print(c(iter = iter, delta2 = delta2,
@@ -386,7 +554,7 @@ estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
                      muy - muy1, variancey - variancey1,
                      betax - betax1, betay - betay1)^2 )
     
-    if (display) cat(sqrt(delta2), "  ")
+    # if (display) cat(sqrt(delta2), "  ")
     
     # cat(delta2 > 0.71); if (all(BA <= 50)) {print(c(range(num1), range(num2), range(denom)))} else {print(c(range(BA)))}
     
@@ -414,6 +582,7 @@ estparVB <- function(z, eps = 1e-06, display = FALSE, mux0 = 1, sigmax0 = 1,
   res$beta <- mux/muy
   res$rho <- sqrt((betay * (alphax-1)) / (betax * (alphay-1)))
   res$delta <- 1/muy * sqrt(betay / (alphay-1))
+  res$r <- 0
   
   attr(res, "k") <- iter
   attr(res, "epsilon") <- eps

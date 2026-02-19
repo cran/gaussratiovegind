@@ -49,8 +49,8 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Angélina El Ghaziri
   \item Nizar Bouhlel
+  \item Angélina El Ghaziri
 }
 
 Other contributors:

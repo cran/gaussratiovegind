@@ -4,41 +4,45 @@
 \alias{pnormratio}
 \title{Cumulative Distribution of a Normal Ratio Distribution}
 \usage{
-pnormratio(z, bet, rho, delta)
+pnormratio(z, bet, rho, delta, r = 0)
 }
 \arguments{
 \item{z}{length \eqn{p} vector of quantiles.}
 
 \item{bet, rho, delta}{numeric values. The parameters \eqn{(\beta, \rho, \delta_y)} of the distribution, see Details.}
+
+\item{r}{numeric. The correlation coefficient. Default \code{r=0} (the two distributions are considered independent).}
 }
 \value{
 Numeric: the value of density.
 }
 \description{
-Cumulative distribution of the ratio of two independent Gaussian distributions\if{html}{\out{<!-- with strictly positive means and variances -->}}.
+Cumulative distribution of the ratio of two \if{html}{\out{<!-- independent -->}} Gaussian distributions.
 }
 \details{
-Let two independant random variables
-\eqn{X \sim N(\mu_x, \sigma_x)} and \eqn{Y \sim N(\mu_y, \sigma_y)}.\if{html}{\out{
+Let two \if{html}{\out{<!-- independent -->}} random variables
+\eqn{X \sim N(\mu_x, \sigma_x)} and \eqn{Y \sim N(\mu_y, \sigma_y)}
+with correlation coefficient \eqn{r}.\if{html}{\out{
 <!-- with \eqn{\mu_x > 0} and \eqn{\mu_y > 0}. -->
 }}
 
 
-If we denote \eqn{\displaystyle{ f_Z(z; \beta, \rho, \delta_y)}}
+If we denote \eqn{\displaystyle{ f_Z(z; \beta, \rho, \delta_y, r)}}
 the probability distribution function of the ratio
 \eqn{\displaystyle{Z = \frac{X}{Y}}},
 with \eqn{\beta = \frac{\mu_x}{\mu_y}},
-\eqn{\displaystyle{\rho = \frac{\sigma_y}{\sigma_x}}}
-and \eqn{\displaystyle{\delta_y = \frac{\sigma_y}{\mu_y}}}
+\eqn{\displaystyle{\rho = \frac{\sigma_y}{\sigma_x}}},
+\eqn{\displaystyle{\delta_y = \frac{\sigma_y}{\mu_y}}}
+and \eqn{\displaystyle{r = Cor(X, Y) = \frac{Cov(X, Y)}{\sigma_x \sigma_y}}}
 (see \code{\link[=dnormratio]{dnormratio()}}, Details section).
 
-The probability distribution for \eqn{Z} is given by:
-\deqn{\displaystyle{F(z; \beta, \rho, \delta_y) = \int_{-\infty}^z{f_Z(z; \beta, \rho, \delta_y)}}}
+The cumulative distribution for \eqn{Z} is given by:
+\deqn{\displaystyle{F(z; \beta, \rho, \delta_y) = \int_{-\infty}^z{f_Z(z; \beta, \rho, \delta_y, r) dz}}}
 
 This integral is computed using numerical integration.
 }
 \examples{
-# First example
+# First example: ratio of independent variables
 beta1 <- 0.15
 rho1 <- 5.75
 delta1 <- 0.22
@@ -46,13 +50,15 @@ pnormratio(0, bet = beta1, rho = rho1, delta = delta1)
 pnormratio(0.5, bet = beta1, rho = rho1, delta = delta1)
 curve(pnormratio(x, bet = beta1, rho = rho1, delta = delta1), from = -0.1, to = 0.7)
 
-# Second example
+# Second example: ratio of correlated variables
 beta2 <- 2
 rho2 <- 2
 delta2 <- 2
-pnormratio(0, bet = beta2, rho = rho2, delta = delta2)
-pnormratio(0.5, bet = beta2, rho = rho2, delta = delta2)
-curve(pnormratio(x, bet = beta2, rho = rho2, delta = delta2), from = -0.1, to = 0.7)
+r2 <- 0.8
+pnormratio(0, bet = beta2, rho = rho2, delta = delta2, r = r2)
+pnormratio(1, bet = beta2, rho = rho2, delta = delta2, r = r2)
+curve(pnormratio(x, bet = beta2, rho = rho2, delta = delta2, r = r2),
+      from = -1.5, to = 2.5)
 
 }
 \references{

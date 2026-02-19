@@ -30,18 +30,18 @@ kummer <- function(a, b, z, eps = 1e-06) {
   #' 
   #' @export
   
-  d <- 1
+  d <- rep(1, length(z))
   
   n <- 0
-  res <- 0
+  res <- rep(0, length(z))
   
-  while ((max(Re(d)) > eps) & (all(is.finite(d)))) {
+  while ((max(abs(Re(d))) > eps) & (all(is.finite(d)))) {
     res <- res + d
     # cat(d, "\t", res, "\n")
     n <- n + 1
     # d <- ( pochhammer(a, n) / pochhammer(b, n) ) * ( z^n / factorial(n) )
     d <- exp(
-      lnpochhammer(a, n) - lnpochhammer(b, n) + n*log(z) - lfactorial(n) #sapply(z, function(x) { n*log(x) })
+      lnpochhammer(a, n) - lnpochhammer(b, n) + n*log(as.complex(z)) - lfactorial(n) #sapply(z, function(x) { n*log(x) })
     )
   }
   # cat("\n")

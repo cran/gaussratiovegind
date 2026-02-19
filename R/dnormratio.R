@@ -1,15 +1,16 @@
-dnormratio <- function (z, bet, rho, delta) {
+dnormratio <- function (z, bet, rho, delta, r = 0) {
   #' Density Function of a Normal Ratio Distribution
   #'
-  #' Density of the ratio of two independent Gaussian distributions<!-- with strictly positive means and variances -->.
+  #' Density of the ratio of two <!-- independent --> Gaussian distributions.
   #'
   #' @aliases dnormratio
   #'
-  #' @usage dnormratio(z, bet, rho, delta)
+  #' @usage dnormratio(z, bet, rho, delta, r = 0)
   #' @param z length \eqn{p} numeric vector.
   #' @param bet,rho,delta numeric values. The parameters \eqn{(\beta, \rho, \delta_y)} of the distribution, see Details.
+  #' @param r numeric. The correlation coefficient. Default \code{r=0} (the two distributions are considered independent).
   #'
-  #' @details Let two independant random variables
+  #' @details Let two independent random variables
   #' \eqn{X \sim N(\mu_x, \sigma_x)} and \eqn{Y \sim N(\mu_y, \sigma_y)}.
   #' <!-- with \eqn{\mu_x > 0} and \eqn{\mu_y > 0}. -->
   #' 
@@ -30,6 +31,13 @@ dnormratio <- function (z, bet, rho, delta) {
   #' (Kummer's function):
   #' \deqn{\displaystyle{
   #' _1 F_1\left(a, b; x\right) = \sum_{n = 0}^{+\infty}{ \frac{ (a)_n }{ (b)_n } \frac{x^n}{n!} }
+  #' }}
+  #' 
+  #' If \eqn{X} and \eqn{Y} are not independent,
+  #' let \eqn{r = Cor(X, Y) = \frac{Cov(X, Y)}{\sigma_X \sigma_Y}},
+  #' the probability distribution of \eqn{Z = \frac{X}{Y}} is:
+  #' \deqn{\displaystyle{
+  #' f_Z(z; \beta, \rho, \delta_y, r) = \frac{\rho \sqrt{1 - r^2}}{\pi (\rho^2 z^2 - 2r \rho z +1)} \ \exp{\left(-\frac{\rho^2 \beta^2 - 2r \beta \rho + 1}{2(1 - r^2) \delta_y^2}\right)} \ {}_1 F_1\left( 1, \frac{1}{2}; \frac{1}{2(1 - r^2) \delta_y^2} \frac{(\beta \rho^2 z - r\rho(z + \beta) + 1)^2}{\rho^2 z^2 - 2r \rho z + 1} \right)
   #' }}
   #' 
   #' @return Numeric: the value of density.
@@ -55,32 +63,56 @@ dnormratio <- function (z, bet, rho, delta) {
   #' On the existence of a normal approximation to the distribution of the ratio of two independent normal random variables.
   #' Stat Papers 54, 309–323 (2013).
   #' \doi{10.1007/s00362-012-0429-2}
+  #' 
+  #' Pham-Gia, T., Turkkan, N., Marchand, E. (2006)
+  #' Density of the Ratio of Two Normal Random Variables and Applications,
+  #' Communications in Statistics - Theory and Methods, 35:9, 1569-1591.
+  #' \doi{10.1080/03610920600683689}
   #'
   #' @examples
-  #' # First example
+  #' # First example: ratio of independent variables
   #' beta1 <- 0.15
   #' rho1 <- 5.75
   #' delta1 <- 0.22
   #' dnormratio(0, bet = beta1, rho = rho1, delta = delta1)
   #' dnormratio(0.5, bet = beta1, rho = rho1, delta = delta1)
-  #' curve(dnormratio(x, bet = beta1, rho = rho1, delta = delta1), from = -0.1, to = 0.7)
+  #' curve(dnormratio(x, bet = beta1, rho = rho1, delta = delta1),
+  #'       from = -0.1, to = 0.7)
   #'
-  #' # Second example
+  #' # Second example: ratio of correlated variables
   #' beta2 <- 2
   #' rho2 <- 2
   #' delta2 <- 2
-  #' dnormratio(0, bet = beta2, rho = rho2, delta = delta2)
-  #' dnormratio(0.5, bet = beta2, rho = rho2, delta = delta2)
-  #' curve(dnormratio(x, bet = beta2, rho = rho2, delta = delta2), from = -0.1, to = 0.7)
+  #' r2 <- 0.8
+  #' dnormratio(0, bet = beta2, rho = rho2, delta = delta2, r = r2)
+  #' dnormratio(1, bet = beta2, rho = rho2, delta = delta2, r = r2)
+  #' curve(dnormratio(x, bet = beta2, rho = rho2, delta = delta2, r = r2),
+  #'       from = -1.5, to = 2.5)
   #'
   #' @export
-
-  q <- (1+bet*rho^2*z)/(delta*sqrt(1+rho^2*z^2))
-  denom = rho/(pi*(1+rho^2*z^2))*(
-    exp(-(rho^2*bet^2+1)/(2*delta^2)) +
-      sqrt(pi/2)*q*.erf(q/sqrt(2))*exp(-0.5*(rho^2*(z-bet)^2)/(delta^2*(1+rho^2*z^2)))
-  )
-  return(denom)
+  
+  if (abs(r) > 1) {
+    stop("r (correlation coefficient) must be between -1 and 1")
+  }
+  
+  if (r == 0) {
+    # X and Y are independent
+    q <- (1+bet*rho^2*z)/(delta*sqrt(1+rho^2*z^2))
+    denom = rho/(pi*(1+rho^2*z^2))*(
+      exp(-(rho^2*bet^2+1)/(2*delta^2)) +
+        sqrt(pi/2)*q*.erf(q/sqrt(2))*exp(-0.5*(rho^2*(z-bet)^2)/(delta^2*(1+rho^2*z^2)))
+    )
+    return(denom)
+  } else {
+    # X and Y are correlated
+    p <- rho*sqrt(1 - r^2) / (pi*(z^2*rho^2 - 2*r*z*rho + 1))
+    q <- -1/(2*(1 - r^2)*delta^2) * (1 - 2*r*bet*rho + bet^2*rho^2)
+    K <- kummer(1, 0.5,
+                1/(2*(1 - r^2)*delta^2) *
+                  (bet*rho^2*z - r*rho*(z + bet) + 1)^2 / (rho^2*z^2 - 2*r*rho*z + 1),
+                eps = .Machine$double.eps)
+    return(as.numeric( p * exp(q) * K))
+  }
 }
 
 .erf <- Vectorize(function(x) 2*pnorm(sqrt(2)*x) - 1)
